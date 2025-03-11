@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .status-up {
+      color: green;
+    }
+    .status-down {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Website Status Monitor</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Website</th>
+        <th>Status</th>
+        <th>Last Checked</th>
+      </tr>
+    </thead>
+    <tbody id="status-table">
+      <!-- Status rows will be injected here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Fetch website status from the backend and update the table
+    async function fetchWebsiteStatus() {
+      try {
+        const response = await fetch('/status');
+        const data = await response.json();
+        const tableBody = document.getElementById('status-table');
+        tableBody.innerHTML = '';
+
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const statusClass = row.status === 'UP' ? 'status-up' : 'status-down';
+
+          tr.innerHTML = `
+            <td>${row.url}</td>
+            <td class="${statusClass}">${row.status}</td>
+            <td>${new Date(row.timestamp).toLocaleString()}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Error fetching website status:', err);
+      }
+    }
+
+    // Fetch the status initially and then every 5 seconds
+    fetchWebsiteStatus();
+    setInterval(fetchWebsiteStatus, 5000); // Update every 5 seconds
+  </script>
+</body>
+</html>
